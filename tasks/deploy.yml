@@ -1,14 +1,43 @@
 ---
-- name: Update the RawPreferencesServer config file's couchdb address
+# The following workaround is required if VirtualBox Shared Folders are being used on Windows.
+# Without it the Preferences Server configuration file cannot be updated in place with Ansible's
+# 'replace' module. A "[Errno 26] Text file busy" error will be returned.
+
+- block:
+
+    - name: Copy Preferences Server configuration file to temporary location in a Vagrant environment
+      command: cp "{{ nodejs_app_install_dir }}/gpii/node_modules/preferencesServer/configs/gpii.preferencesServer.config.production.json" /tmp/gpii.preferencesServer.config.production.json
+
+    - name: Update the Preferences Server config file's CouchDB address
+      replace:
+        dest: /tmp/gpii.preferencesServer.config.production.json
+        regexp: 'http://localhost:5984'
+        replace: 'http://{{ preferences_server_couchdb_host_address }}'
+      notify: Restart the application systemd unit
+
+    - name: Update the Preferences Server config file's endpoint for retrieving preferences
+      replace:
+        dest: /tmp/gpii.preferencesServer.config.production.json
+        regexp: '/user/%userToken'
+        replace: '/preferences/%userToken'
+      notify: Restart the application systemd unit
+
+    - name: Move Preferences Server configuration file back to original location in a Vagrant environment
+      command: mv /tmp/gpii.preferencesServer.config.production.json "{{ nodejs_app_install_dir }}/gpii/node_modules/preferencesServer/configs/gpii.preferencesServer.config.production.json"
+
+  when: is_vagrant
+
+# If VirtualBox Shared Folders on Windows aren't being used then modify files directly.
+- name: Update the Preferences Server config file's CouchDB address
   replace:
-    dest: "{{ nodejs_app_install_dir }}/gpii/node_modules/rawPreferencesServer/configs/production.json"
+    dest: "{{ nodejs_app_install_dir }}/gpii/node_modules/preferencesServer/configs/gpii.preferencesServer.config.production.json"
     regexp: 'http://localhost:5984'
     replace: 'http://{{ preferences_server_couchdb_host_address }}'
   notify: Restart the application systemd unit
 
-- name: Update the RawPreferencesServer config file's endpoint for retrieving preferences
+- name: Update the Preferences Server config file's endpoint for retrieving preferences
   replace:
-    dest: "{{ nodejs_app_install_dir }}/gpii/node_modules/rawPreferencesServer/configs/production.json"
+    dest: "{{ nodejs_app_install_dir }}/gpii/node_modules/preferencesServer/configs/gpii.preferencesServer.config.production.json"
     regexp: '/user/%userToken'
     replace: '/preferences/%userToken'
   notify: Restart the application systemd unit

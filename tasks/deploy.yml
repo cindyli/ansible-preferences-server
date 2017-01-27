@@ -12,7 +12,7 @@
       replace:
         dest: /tmp/gpii.preferencesServer.config.production.json
         regexp: 'http://localhost:5984'
-        replace: 'http://{{ preferences_server_couchdb_host_address }}'
+        replace: 'http://{{ preferences_server_couchdb_host_address }}:{{ preferences_server_couchdb_host_port }}'
       notify: Restart the application systemd unit
 
     - name: Update the Preferences Server config file's endpoint for retrieving preferences
@@ -28,16 +28,31 @@
   when: is_vagrant
 
 # If VirtualBox Shared Folders on Windows aren't being used then modify files directly.
-- name: Update the Preferences Server config file's CouchDB address
+- name: Update the Preferences Server production config file's CouchDB address
   replace:
     dest: "{{ nodejs_app_install_dir }}/gpii/node_modules/preferencesServer/configs/gpii.preferencesServer.config.production.json"
     regexp: 'http://localhost:5984'
-    replace: 'http://{{ preferences_server_couchdb_host_address }}'
+    replace: 'http://{{ preferences_server_couchdb_host_address }}:{{ preferences_server_couchdb_host_port }}'
   notify: Restart the application systemd unit
 
-- name: Update the Preferences Server config file's endpoint for retrieving preferences
+#  This may no longer be necessary, so commmenting out
+# - name: Update the Preferences Server production config file's endpoint for retrieving preferences
+#   replace:
+#     dest: "{{ nodejs_app_install_dir }}/gpii/node_modules/preferencesServer/configs/gpii.preferencesServer.config.production.json"
+#     regexp: '/user/%userToken'
+#     replace: '/preferences/%userToken'
+#   notify: Restart the application systemd unit
+
+- name: Update the Preferences Server base config file's authDBServerPort
   replace:
-    dest: "{{ nodejs_app_install_dir }}/gpii/node_modules/preferencesServer/configs/gpii.preferencesServer.config.production.json"
-    regexp: '/user/%userToken'
-    replace: '/preferences/%userToken'
+    dest: "{{ nodejs_app_install_dir }}/gpii/node_modules/preferencesServer/configs/gpii.preferencesServer.config.base.json"
+    regexp: '\"authDBServerPort\": 8058'
+    replace: '\"authDBServerPort\": {{ preferences_server_couchdb_host_port }}'
+  notify: Restart the application systemd unit
+
+- name: Update the Preferences Server base config file's preferencesServer.dataStore.baseUrl
+  replace:
+    dest: "{{ nodejs_app_install_dir }}/gpii/node_modules/preferencesServer/configs/gpii.preferencesServer.config.base.json"
+    regexp: '\"baseUrl\": \"http://localhost\"'
+    replace: '\"baseUrl\": {{ preferences_server_couchdb_host_address }}'
   notify: Restart the application systemd unit

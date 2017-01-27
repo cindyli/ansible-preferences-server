@@ -54,5 +54,5 @@
   replace:
     dest: "{{ nodejs_app_install_dir }}/gpii/node_modules/preferencesServer/configs/gpii.preferencesServer.config.base.json"
     regexp: '"baseUrl": "http://localhost"'
-    replace: '"baseUrl": "{{ preferences_server_couchdb_host_address }}"'
+    replace: '"baseUrl": "http://{{ preferences_server_couchdb_host_address }}"'
   notify: Restart the application systemd unit

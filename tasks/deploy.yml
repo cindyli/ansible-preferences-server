@@ -6,7 +6,7 @@
 - block:
 
     - name: Copy Preferences Server configuration file to temporary location in a Vagrant environment
-      command: cp "{{ nodejs_app_install_dir }}/gpii/node_modules/preferencesServer/configs/gpii.preferencesServer.config.production.json" /tmp/gpii.preferencesServer.config.production.json
+      command: 'cp {{ nodejs_app_install_dir }}/{{ preferences_server_config_dir }}/{{ preferences_server_environment }}.json /tmp/{{ preferences_server_environment }}.json'
 
     - name: Update the Preferences Server config file's CouchDB address
       replace:
@@ -17,20 +17,20 @@
 
     - name: Update the Preferences Server config file's endpoint for retrieving preferences
       replace:
-        dest: /tmp/gpii.preferencesServer.config.production.json
+        dest: '/tmp/{{ preferences_server_environment }}.json'
         regexp: '/user/%userToken'
         replace: '/preferences/%userToken'
       notify: Restart the application systemd unit
 
     - name: Move Preferences Server configuration file back to original location in a Vagrant environment
-      command: mv /tmp/gpii.preferencesServer.config.production.json "{{ nodejs_app_install_dir }}/gpii/node_modules/preferencesServer/configs/gpii.preferencesServer.config.production.json"
+      command: 'mv /tmp/{{ preferences_server_environment }}.json {{ nodejs_app_install_dir }}/{{ preferences_server_config_dir}}/{{ preferences_server_environment }}.json'
 
   when: is_vagrant
 
 # If VirtualBox Shared Folders on Windows aren't being used then modify files directly.
 - name: Update the Preferences Server production config file's CouchDB address
   replace:
-    dest: "{{ nodejs_app_install_dir }}/gpii/node_modules/preferencesServer/configs/gpii.preferencesServer.config.production.json"
+    dest: '{{ nodejs_app_install_dir }}/{{ preferences_server_config_dir }}/{{ preferences_server_environment }}.json'
     regexp: 'http://localhost:5984'
     replace: 'http://{{ preferences_server_couchdb_host_address }}:{{ preferences_server_couchdb_host_port }}'
   notify: Restart the application systemd unit
@@ -38,21 +38,21 @@
 #  This may no longer be necessary, so commmenting out
 # - name: Update the Preferences Server production config file's endpoint for retrieving preferences
 #   replace:
-#     dest: "{{ nodejs_app_install_dir }}/gpii/node_modules/preferencesServer/configs/gpii.preferencesServer.config.production.json"
+#     dest: '{{ nodejs_app_install_dir }}/{{ preferences_server_config_dir }}/{{ preferences_server_environment }}.json'
 #     regexp: '/user/%userToken'
 #     replace: '/preferences/%userToken'
 #   notify: Restart the application systemd unit
 
 - name: Update the Preferences Server base config file's authDBServerPort
   replace:
-    dest: "{{ nodejs_app_install_dir }}/gpii/node_modules/preferencesServer/configs/gpii.preferencesServer.config.base.json"
+    dest: "{{ nodejs_app_install_dir }}/{{ preferences_server_config_dir }}/gpii.preferencesServer.config.base.json"
     regexp: '"authDBServerPort": 8058'
     replace: '"authDBServerPort": {{ preferences_server_couchdb_host_port }}'
   notify: Restart the application systemd unit
 
 - name: Update the Preferences Server base config file's preferencesServer.dataStore.baseUrl
   replace:
-    dest: "{{ nodejs_app_install_dir }}/gpii/node_modules/preferencesServer/configs/gpii.preferencesServer.config.base.json"
+    dest: "{{ nodejs_app_install_dir }}/{{ preferences_server_config_dir }}/gpii.preferencesServer.config.base.json"
     regexp: '"baseUrl": "http://localhost"'
     replace: '"baseUrl": "http://{{ preferences_server_couchdb_host_address }}"'
   notify: Restart the application systemd unit

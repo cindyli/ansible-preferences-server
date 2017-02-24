@@ -10,7 +10,7 @@
 
     - name: Update the Preferences Server config file's CouchDB address
       replace:
-        dest: /tmp/gpii.preferencesServer.config.production.json
+        dest: '/tmp/{{ preferences_server_environment }}.json'
         regexp: 'http://localhost:5984'
         replace: 'http://{{ preferences_server_couchdb_host_address }}:{{ preferences_server_couchdb_host_port }}'
       notify: Restart the application systemd unit
@@ -45,14 +45,14 @@
 
 - name: Update the Preferences Server base config file's authDBServerPort
   replace:
-    dest: "{{ nodejs_app_install_dir }}/{{ preferences_server_config_dir }}/gpii.preferencesServer.config.base.json"
+    dest: '{{ nodejs_app_install_dir }}/{{ preferences_server_config_dir }}/{{ preferences_server_environment }}.json'
     regexp: '"authDBServerPort": 8058'
     replace: '"authDBServerPort": {{ preferences_server_couchdb_host_port }}'
   notify: Restart the application systemd unit
 
 - name: Update the Preferences Server base config file's preferencesServer.dataStore.baseUrl
   replace:
-    dest: "{{ nodejs_app_install_dir }}/{{ preferences_server_config_dir }}/gpii.preferencesServer.config.base.json"
+    dest: '{{ nodejs_app_install_dir }}/{{ preferences_server_config_dir }}/{{ preferences_server_environment }}.json'
     regexp: '"baseUrl": "http://localhost"'
     replace: '"baseUrl": "http://{{ preferences_server_couchdb_host_address }}:{{ preferences_server_couchdb_host_port }}"'
   notify: Restart the application systemd unit

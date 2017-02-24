@@ -3,8 +3,8 @@
 # defaults for for the preferences-server role
 preferences_server_couchdb_host_address: localhost
 preferences_server_couchdb_host_port: 5984
-preferences_server_environment: gpii.preferencesServer.config.production
-preferences_server_config_dir: gpii/node_modules/preferencesServer/configs
+preferences_server_environment: gpii.config.preferencesServer.standalone.production
+preferences_server_config_dir: gpii/configs
 
 # nodejs application configuration for the ansible-nodejs role
 

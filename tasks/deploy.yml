@@ -45,14 +45,14 @@
 
 - name: Update the Preferences Server base config file's authDBServerPort
   replace:
-    dest: "{{ nodejs_app_install_dir }}/{{ preferences_server_config_dir }}/{{ preferences_server_environment }}.json"
+    dest: '{{ nodejs_app_install_dir }}/{{ preferences_server_config_dir }}/{{ preferences_server_environment }}.json'
     regexp: '"authDBServerPort": 8058'
     replace: '"authDBServerPort": {{ preferences_server_couchdb_host_port }}'
   notify: Restart the application systemd unit
 
 - name: Update the Preferences Server base config file's preferencesServer.dataStore.baseUrl
   replace:
-    dest: "{{ nodejs_app_install_dir }}/{{ preferences_server_config_dir }}/{{ preferences_server_environment }}.json"
+    dest: '{{ nodejs_app_install_dir }}/{{ preferences_server_config_dir }}/{{ preferences_server_environment }}.json'
     regexp: '"baseUrl": "http://localhost"'
     replace: '"baseUrl": "http://{{ preferences_server_couchdb_host_address }}:{{ preferences_server_couchdb_host_port }}"'
   notify: Restart the application systemd unit

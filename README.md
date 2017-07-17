@@ -1,3 +1,5 @@
+**DEPRECATED**: The settings that this role manages are now available through environment variables in [GPII/universal](https://github.com/GPII/universal).
+
 Preferences Server
 ==================
 
